@@ -8,7 +8,7 @@ class RobotControl(QtWidgets.QMainWindow, Ui_MainWindow):
         QtWidgets.QMainWindow.__init__(self)
         super(RobotControl, self).setupUi(self)
 
-        esp = esp300.esp300(8)
+        esp = esp300.esp300(1)
 
         pos_updater = QtCore.QTimer(self)
         # Inline declaration preferred over lambda to allow spreading
@@ -24,10 +24,10 @@ class RobotControl(QtWidgets.QMainWindow, Ui_MainWindow):
         # Axis 1 Controls
 
         self.a1_left.clicked.connect(
-            lambda _: setattr(esp.axis1, pos, pos - self.a1_step.value())
+            lambda _: setattr(esp.axis1, 'pos', esp.axis1.pos - self.a1_step.value())
         )
         self.a1_right.clicked.connect(
-            lambda _: setattr(esp.axis1, pos, pos + self.a1_step.value())
+            lambda _: setattr(esp.axis1, 'pos', esp.axis1.pos + self.a1_step.value())
         )
         self.a1_zero.clicked.connect(
             lambda _: esp.axis1.go_home()
@@ -36,10 +36,10 @@ class RobotControl(QtWidgets.QMainWindow, Ui_MainWindow):
         # Axis 2 Controls
 
         self.a2_left.clicked.connect(
-            lambda _: setattr(esp.axis2, pos, pos - self.a2_step.value())
+            lambda _: setattr(esp.axis2, 'pos', esp.axis2.pos - self.a2_step.value())
         )
         self.a2_right.clicked.connect(
-            lambda _: setattr(esp.axis2, pos, pos + self.a2_step.value())
+            lambda _: setattr(esp.axis2, 'pos', esp.axis2.pos + self.a2_step.value())
         )
         self.a2_zero.clicked.connect(
             lambda _: esp.axis2.go_home()
@@ -48,10 +48,10 @@ class RobotControl(QtWidgets.QMainWindow, Ui_MainWindow):
         # Axis 3 Controls
 
         self.a3_left.clicked.connect(
-            lambda _: setattr(esp.axis3, pos, pos - self.a3_step.value())
+            lambda _: setattr(esp.axis3, 'pos', esp.axis3.pos - self.a3_step.value())
         )
         self.a3_right.clicked.connect(
-            lambda _: setattr(esp.axis3, pos, pos + self.a3_step.value())
+            lambda _: setattr(esp.axis3, 'pos', esp.axis3.pos + self.a3_step.value())
         )
         self.a3_zero.clicked.connect(
             lambda _: esp.axis3.go_home()
@@ -60,7 +60,7 @@ class RobotControl(QtWidgets.QMainWindow, Ui_MainWindow):
         self.auto_savedir_button.clicked.connect(self.set_savedir)
 
     def set_savedir(self):
-         fn = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+         fn = str(QtWidgets.QFileDialog.getExistingDirectory(self, "Select Directory"))
          self.auto_savedir.setText(fn)
 
 if __name__ == '__main__':

@@ -13,11 +13,12 @@ class axis():
     def __init__(self,num,parent=None):
         self.num = num
         self.parent = parent
-        self.pos = None
 
         self.go_home()
+        self.pos=0
 
     def go_home(self):
+        print(self.parent.inst.query("*IDN?"))
         self.parent.inst.write("{}MO".format(self.num))
         self.parent.inst.write("{}SH0".format(self.num))
         self.parent.inst.write("{}OR1".format(self.num))
@@ -27,7 +28,7 @@ class axis():
 
     @property
     def pos(self):
-        return self.parent.inst.query("{}TP".format(self.num))
+        return float(self.parent.inst.query("{}TP".format(self.num)))
 
     @pos.setter
     def pos(self, value):
