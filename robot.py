@@ -8,25 +8,26 @@ class RobotControl(QtWidgets.QMainWindow, Ui_MainWindow):
         QtWidgets.QMainWindow.__init__(self)
         super(RobotControl, self).setupUi(self)
 
-        esp = esp300.esp300(1)
+        esp = esp300.esp300(8)
 
         pos_updater = QtCore.QTimer(self)
         # Inline declaration preferred over lambda to allow spreading
-        # over multiple lines, so as not to have a gigantic line
-        def pos_update():
+        # over multiple lines, so as not to have a gigantic line.
+        # I can add the field updating here too.
+        def update():
             self.a1_pos.setText(str(esp.axis1.pos))
             self.a2_pos.setText(str(esp.axis2.pos))
             self.a3_pos.setText(str(esp.axis3.pos))
-        pos_updater.timeout.connect(pos_update)
+        pos_updater.timeout.connect(update)
         pos_updater.start(100)
 
         # Axis 1 Controls
 
         self.a1_left.clicked.connect(
-            lambda _: esp.axis1.pos-=self.a1_step.value()
+            lambda _: setattr(esp.axis1, pos, pos - self.a1_step.value())
         )
         self.a1_right.clicked.connect(
-            lambda _: esp.axis1.pos+=self.a1_step.value()
+            lambda _: setattr(esp.axis1, pos, pos + self.a1_step.value())
         )
         self.a1_zero.clicked.connect(
             lambda _: esp.axis1.go_home()
@@ -35,10 +36,10 @@ class RobotControl(QtWidgets.QMainWindow, Ui_MainWindow):
         # Axis 2 Controls
 
         self.a2_left.clicked.connect(
-            lambda _: esp.axis2.pos-=self.a2_step.value()
+            lambda _: setattr(esp.axis2, pos, pos - self.a2_step.value())
         )
         self.a2_right.clicked.connect(
-            lambda _: esp.axis2.pos+=self.a2_step.value()
+            lambda _: setattr(esp.axis2, pos, pos + self.a2_step.value())
         )
         self.a2_zero.clicked.connect(
             lambda _: esp.axis2.go_home()
@@ -47,15 +48,20 @@ class RobotControl(QtWidgets.QMainWindow, Ui_MainWindow):
         # Axis 3 Controls
 
         self.a3_left.clicked.connect(
-            lambda _: esp.axis3.pos-=self.a3_step.value()
+            lambda _: setattr(esp.axis3, pos, pos - self.a3_step.value())
         )
         self.a3_right.clicked.connect(
-            lambda _: esp.axis3.pos+=self.a3_step.value()
+            lambda _: setattr(esp.axis3, pos, pos + self.a3_step.value())
         )
         self.a3_zero.clicked.connect(
             lambda _: esp.axis3.go_home()
         )
 
+        self.auto_savedir_button.clicked.connect(self.set_savedir)
+
+    def set_savedir(self):
+         fn = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+         self.auto_savedir.setText(fn)
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
