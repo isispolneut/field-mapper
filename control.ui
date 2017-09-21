@@ -87,7 +87,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Right</string>
+         <string>-&gt;</string>
         </property>
        </widget>
       </item>
@@ -113,7 +113,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Left</string>
+         <string>&lt;-</string>
         </property>
        </widget>
       </item>
@@ -130,6 +130,15 @@
      </property>
      <property name="suffix">
       <string> mm</string>
+     </property>
+     <property name="minimum">
+      <double>0.000000000000000</double>
+     </property>
+     <property name="maximum">
+      <double>10.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>0.010000000000000</double>
      </property>
     </widget>
    </widget>
@@ -180,7 +189,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Left</string>
+         <string>&lt;-</string>
         </property>
        </widget>
       </item>
@@ -193,7 +202,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Right</string>
+         <string>-&gt;</string>
         </property>
        </widget>
       </item>
@@ -249,6 +258,15 @@
      </property>
      <property name="suffix">
       <string> mm</string>
+     </property>
+     <property name="minimum">
+      <double>0.000000000000000</double>
+     </property>
+     <property name="maximum">
+      <double>10.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>0.010000000000000</double>
      </property>
     </widget>
    </widget>
@@ -325,7 +343,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Right</string>
+         <string>-&gt;</string>
         </property>
        </widget>
       </item>
@@ -351,7 +369,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Left</string>
+         <string>&lt;-</string>
         </property>
        </widget>
       </item>
@@ -368,6 +386,15 @@
      </property>
      <property name="suffix">
       <string> mm</string>
+     </property>
+     <property name="minimum">
+      <double>0.000000000000000</double>
+     </property>
+     <property name="maximum">
+      <double>10.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>0.010000000000000</double>
      </property>
     </widget>
    </widget>
@@ -413,24 +440,6 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="a2_min"/>
-      </item>
-      <item row="3" column="1">
-       <widget class="QLineEdit" name="a3_min"/>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="a1_min"/>
-      </item>
-      <item row="2" column="2">
-       <widget class="QLineEdit" name="a2_max"/>
-      </item>
-      <item row="1" column="2">
-       <widget class="QLineEdit" name="a1_max"/>
-      </item>
-      <item row="3" column="2">
-       <widget class="QLineEdit" name="a3_max"/>
-      </item>
       <item row="0" column="1">
        <widget class="QLabel" name="auto_from">
         <property name="text">
@@ -456,6 +465,48 @@
        <widget class="QLabel" name="a3_label">
         <property name="text">
          <string>A3</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QDoubleSpinBox" name="a1_min">
+        <property name="minimum">
+         <double>-99.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QDoubleSpinBox" name="a1_max">
+        <property name="minimum">
+         <double>-99.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QDoubleSpinBox" name="a2_min">
+        <property name="minimum">
+         <double>-99.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QDoubleSpinBox" name="a2_max">
+        <property name="minimum">
+         <double>-99.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QDoubleSpinBox" name="a3_min">
+        <property name="minimum">
+         <double>-99.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2">
+       <widget class="QDoubleSpinBox" name="a3_max">
+        <property name="minimum">
+         <double>-99.000000000000000</double>
         </property>
        </widget>
       </item>
@@ -582,90 +633,6 @@
        </widget>
       </item>
      </layout>
-    </widget>
-    <widget class="QGroupBox" name="field_group_2">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>181</width>
-       <height>161</height>
-      </rect>
-     </property>
-     <property name="title">
-      <string>Field</string>
-     </property>
-     <widget class="QWidget" name="gridLayoutWidget_2">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>20</y>
-        <width>160</width>
-        <height>131</height>
-       </rect>
-      </property>
-      <layout class="QGridLayout" name="gridLayout_3">
-       <item row="0" column="0">
-        <widget class="QLabel" name="x_2">
-         <property name="text">
-          <string>X</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="z_2">
-         <property name="text">
-          <string>Z</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="y_2">
-         <property name="text">
-          <string>Y</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="mag_2">
-         <property name="text">
-          <string>|B|</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLineEdit" name="x_val_2">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QLineEdit" name="y_val_2">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QLineEdit" name="z_val_2">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QLineEdit" name="mag_val_2">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="clearButtonEnabled">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
     </widget>
    </widget>
    <widget class="QGroupBox" name="settings_group">
