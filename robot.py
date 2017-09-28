@@ -10,24 +10,27 @@ class RobotControl(QtWidgets.QMainWindow, Ui_MainWindow):
         QtWidgets.QMainWindow.__init__(self)
         super(RobotControl, self).setupUi(self)
 
-        self.esp = esp300.esp300(1,0.5)
-        self.gauss = gauss460.gauss460(8)
+        self.esp = esp300.esp300(1,0)
+        self.gauss = gauss460.gauss460(8,1)
+
+        self.scanning = False
 
         pos_updater = QtCore.QTimer(self)
         # Inline declaration preferred over lambda to allow spreading
         # over multiple lines, so as not to have a gigantic line.
         # I can add the field updating here too.
         def update():
-            self.a1_pos.setText(str(self.esp.axis1.pos) + " mm")
-            self.a2_pos.setText(str(self.esp.axis2.pos) + " mm")
-            self.a3_pos.setText(str(self.esp.axis3.pos) + " mm")
+            if not self.scanning:
+                self.a1_pos.setText(str(self.esp.axis1.pos) + " mm")
+                self.a2_pos.setText(str(self.esp.axis2.pos) + " mm")
+                self.a3_pos.setText(str(self.esp.axis3.pos) + " mm")
 
-            field = self.gauss.allf()
+                field = self.gauss.allf()
 
-            self.x_val.setText(str(field[0]))
-            self.y_val.setText(str(field[1]))
-            self.z_val.setText(str(field[2]))
-            self.mag_val.setText(str(field[3]))
+                self.x_val.setText(str(field[0]))
+                self.y_val.setText(str(field[1]))
+                self.z_val.setText(str(field[2]))
+                self.mag_val.setText(str(field[3]))
 
         pos_updater.timeout.connect(update)
         pos_updater.start(100)
@@ -69,13 +72,85 @@ class RobotControl(QtWidgets.QMainWindow, Ui_MainWindow):
         )
 
         self.auto_savedir_button.clicked.connect(self.set_savedir)
-        self.auto_scan.clicked.connect(self.scan_volume_gradient)
+
+        def scan():
+            if self.quantity_combo.currentText() == "Gradient":
+                self.scan_volume_gradient()
+            elif self.quantity_combo.currentText() == "Field":
+                self.scan_volume_field()        
+        self.auto_scan.clicked.connect(scan)
 
     def set_savedir(self):
          self.fn = str(QtWidgets.QFileDialog.getExistingDirectory(self, "Select Directory"))
          self.auto_savedir.setText(self.fn)
 
     def scan_volume_gradient(self):
+        self.scanning = True
+
+        dim1 = int((abs(self.a1_max.value() - self.a1_min.value()))/ self.a1_step.value())
+        dim2 = int((abs(self.a2_max.value() - self.a2_min.value()))/ self.a2_step.value())
+        dim3 = int((abs(self.a3_max.value() - self.a3_min.value()))/ self.a3_step.value())
+
+        grad_mag = np.zeros((dim1+1,dim2+1,dim3+1))
+        i=0
+        j=0
+        k=0
+
+        for x in np.linspace(self.a1_min.value(), self.a1_max.value(), num=dim1+1):
+            j=0
+            for y in np.linspace(self.a2_min.value(), self.a2_max.value(), num=dim2+1):
+                k=0
+                for z in np.linspace(self.a3_min.value(), self.a3_max.value(), num=dim3+1):
+                    try:
+                        x_grad = []
+                        y_grad = []
+                        z_grad = []
+
+                        grad = []
+
+                        self.esp.axis1.pos = x
+                        self.esp.axis2.pos = y
+                        self.esp.axis3.pos = z
+
+                        self.esp.axis1.pos = x - self.a1_step.value()
+                        x_grad.append(self.gauss.field)
+                        self.esp.axis1.pos = x + self.a1_step.value()
+                        x_grad.append(self.gauss.field)
+                        self.esp.axis1.pos = x
+
+                        grad.append((x_grad[1] - x_grad[0])/(2*(self.a1_step.value()*1e-3)))
+
+                        self.esp.axis2.pos = y - self.a2_step.value()
+                        y_grad.append(self.gauss.field)
+                        self.esp.axis2.pos = y + self.a2_step.value()
+                        y_grad.append(self.gauss.field)
+                        self.esp.axis2.pos = y
+
+                        grad.append((y_grad[1]-y_grad[0])/(2*(self.a2_step.value()*1e-3)))
+
+                        self.esp.axis3.pos = z - self.a3_step.value()
+                        z_grad.append(self.gauss.field)
+                        self.esp.axis3.pos = z + self.a3_step.value()
+                        z_grad.append(self.gauss.field)
+                        self.esp.axis3.pos = z
+
+                        grad.append((z_grad[1]-z_grad[0])/(2*(self.a3_step.value()*1e-3)))
+
+                        grad_mag[i,j,k] = np.sqrt(grad[0]**2+grad[1]**2+grad[2]**2)
+                    except Exception as ex:
+                        print("Caught an error, skipping point")
+                        print(ex)
+                        np.save(self.fn + "/grad.errbak",grad_mag)
+
+                    k+=1
+                j+=1
+            i+=1
+
+        np.save(self.fn + "/grad",grad_mag)
+
+        self.scanning = False
+
+    def scan_volume_field(self):
 
         dim1 = int((abs(self.a1_max.value() - self.a1_min.value()))/ self.a1_step.value())
         dim2 = int((abs(self.a2_max.value() - self.a2_min.value()))/ self.a2_step.value())
@@ -101,31 +176,7 @@ class RobotControl(QtWidgets.QMainWindow, Ui_MainWindow):
                     self.esp.axis2.pos = y
                     self.esp.axis3.pos = z
 
-                    self.esp.axis1.pos = x - self.a1_step.value()
-                    x_grad.append(self.gauss.allf()[3])
-                    self.esp.axis1.pos = x + self.a1_step.value()
-                    x_grad.append(self.gauss.allf()[3])
-                    self.esp.axis1.pos = x
-
-                    grad.append((x_grad[1] - x_grad[0])/(2*(self.a1_step.value()*1e-3)))
-
-                    self.esp.axis2.pos = y - self.a2_step.value()
-                    y_grad.append(self.gauss.allf()[3])
-                    self.esp.axis2.pos = y + self.a2_step.value()
-                    y_grad.append(self.gauss.allf()[3])
-                    self.esp.axis2.pos = y
-
-                    grad.append((y_grad[1]-y_grad[0])/(2*(self.a2_step.value()*1e-3)))
-
-                    self.esp.axis3.pos = z - self.a3_step.value()
-                    z_grad.append(self.gauss.allf()[3])
-                    self.esp.axis3.pos = z + self.a3_step.value()
-                    z_grad.append(self.gauss.allf()[3])
-                    self.esp.axis3.pos = z
-
-                    grad.append((z_grad[1]-z_grad[0])/(2*(self.a3_step.value()*1e-3)))
-
-                    grad_mag[i,j,k] = np.sqrt(grad[0]**2+grad[1]**2+grad[2]**2)
+                    grad_mag[i,j,k] = self.gauss.field
 
                     k+=1
                 j+=1
