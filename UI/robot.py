@@ -5,6 +5,8 @@ import sys, esp300, gauss460, time
 
 import numpy as np
 
+from time import sleep
+
 class RobotControl(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self):
         QtWidgets.QMainWindow.__init__(self)
@@ -16,9 +18,7 @@ class RobotControl(QtWidgets.QMainWindow, Ui_MainWindow):
         self.scanning = False
 
         pos_updater = QtCore.QTimer(self)
-        # Inline declaration preferred over lambda to allow spreading
-        # over multiple lines, so as not to have a gigantic line.
-        # I can add the field updating here too.
+
         def update():
             if not self.scanning:
                 self.a1_pos.setText(str(self.esp.axis1.pos) + " mm")
@@ -151,12 +151,15 @@ class RobotControl(QtWidgets.QMainWindow, Ui_MainWindow):
         self.scanning = False
 
     def scan_volume_field(self):
+        self.scanning = True
 
         dim1 = int((abs(self.a1_max.value() - self.a1_min.value()))/ self.a1_step.value())
         dim2 = int((abs(self.a2_max.value() - self.a2_min.value()))/ self.a2_step.value())
         dim3 = int((abs(self.a3_max.value() - self.a3_min.value()))/ self.a3_step.value())
 
-        grad_mag = np.zeros((dim1+1,dim2+1,dim3+1))
+        x_mag = np.zeros((dim1+1,dim2+1,dim3+1))
+        y_mag = np.zeros((dim1+1, dim2+1, dim3+1))
+        z_mag = np.zeros((dim1+1, dim2+1, dim3+1))
         i=0
         j=0
         k=0
@@ -173,16 +176,28 @@ class RobotControl(QtWidgets.QMainWindow, Ui_MainWindow):
                     grad = []
 
                     self.esp.axis1.pos = x
+                    sleep(0.4)
                     self.esp.axis2.pos = y
+                    sleep(0.4)
                     self.esp.axis3.pos = z
+                    sleep(1.0)
 
-                    grad_mag[i,j,k] = self.gauss.field
+                    allf = self.gauss.allf()
+
+                    x_mag[i,j,k] = allf[0]
+                    y_mag[i,j,k] = allf[1]
+                    z_mag[i,j,k] = allf[2]
 
                     k+=1
                 j+=1
+                np.save(self.fn + "/xfield",x_mag)
+                np.save(self.fn + "/yfield",y_mag)
+                np.save(self.fn + "/zfield",z_mag)
             i+=1
 
-        np.save(self.fn + "/grad",grad_mag)
+        np.save(self.fn + "/xfield",x_mag)
+        np.save(self.fn + "/yfield",y_mag)
+        np.save(self.fn + "/zfield",z_mag)
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)

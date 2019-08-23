@@ -30,10 +30,7 @@ class axis():
         print(self.parent.inst.query("*IDN?"))
         self.parent.inst.write("{}MO".format(self.num))
         self.parent.inst.write("{}SH0".format(self.num))
-        if self.num == 2:
-            self.parent.inst.write("{}OR3".format(self.num))
-        else:
-            self.parent.inst.write("{}OR1".format(self.num))
+        self.parent.inst.write("{}OR".format(self.num))
 
         while not self.is_not_moving():
             time.sleep(0.1)
